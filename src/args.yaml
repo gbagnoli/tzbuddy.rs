@@ -1,0 +1,49 @@
+name: tzbuddy
+version: "0.2.0"
+about: visualize time in different timezone
+author: Giacomo Bagnoli <gbagnoli@gmail.com>
+
+args:
+  - timezones:
+      help: Which timezone(s) to display
+      short: z
+      long: tz
+      multiple: true
+      takes_value: true
+  - noorder:
+      help: Do not order timezones
+      short: O
+      long: no-order
+      conflicts_with:
+        - inverseorder
+  - inverseorder:
+      help: Sort TZ from west to east
+      short: I
+      long: inverse-order
+      conflicts_with:
+        - noorder
+  - nolocal:
+      help: Do not add local timezone
+      short: L
+      long: no-local
+  - noheader:
+      help: Do not display header
+      short: H
+      long: no-header
+  - vertical:
+      help: Vertical output
+      short: v
+      long: vertical
+  - span:
+      help: How many hours to span
+      # default: 24
+      takes_value: true
+      long: span
+      short: s
+  - ampm:
+      help: Use 12h (am/pm) format
+      short: a
+      long: am-pm
+  - date:
+      help: Calculate times from a specific date
+      index: 1
