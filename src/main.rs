@@ -1,12 +1,14 @@
 extern crate clap;
 extern crate chrono;
 extern crate chrono_tz;
+extern crate prettytable;
 
 use std::collections::HashMap;
 use chrono_tz::Tz;
 use clap::{App, Values};
 use chrono::{DateTime, Utc, Duration, Timelike, Datelike};
 use std::cmp::Ordering;
+use prettytable::{Table, format, Row, Cell};
 
 #[derive(Debug)]
 struct TimezoneHours<'a> {
@@ -120,12 +122,38 @@ fn calculate_timezone_hours(
     tzhours
 }
 
+fn print_table(tz_hours: Vec<TimezoneHours>, date: DateTime<Utc>) {
+    let mut table = Table::new();
+    let format = format::FormatBuilder::new()
+        .column_separator(' ')
+        .borders(' ')
+        .separators(&[], format::LineSeparator::new('-', '+', '+', '+'))
+        .build();
+
+    table.set_format(format);
+    for hours in tz_hours {
+        let converted = date.with_timezone(&hours.tz);
+        let mut row_elems = Vec::new();
+        row_elems.push(Cell::new(hours.name));
+        row_elems.push(Cell::new(
+            &converted.format("(%Z) %a %H:%M %d/%m/%Y").to_string(),
+        ));
+        row_elems.push(Cell::new("·"));
+        for hour in hours.hours {
+            row_elems.push(Cell::new(&hour));
+        }
+        table.add_row(Row::new(row_elems));
+    }
+    table.printstd();
+}
+
 fn main() {
     let config_yaml = clap::load_yaml!("args.yaml");
     let matches = App::from(config_yaml).get_matches();
+    let date = get_utc_date(matches.value_of("date"));
     let mut tzhours = calculate_timezone_hours(
         get_timezones(matches.values_of("timezones")),
-        get_utc_date(matches.value_of("date")),
+        date,
         get_span(matches.value_of("span")),
     );
     let inverse = matches.is_present("inverseorder");
@@ -145,5 +173,5 @@ fn main() {
             if d_a < d_b { less } else { greater }
         });
     }
-    println!("Hello, world!: {:?}", tzhours);
+    print_table(tzhours, date);
 }
