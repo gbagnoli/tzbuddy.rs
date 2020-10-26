@@ -23,7 +23,7 @@ args:
       conflicts_with:
         - noorder
   - nolocal:
-      help: Do not add local timezone
+      help: (deprecated! not used anymore)
       short: L
       long: no-local
   - noheader:
@@ -36,7 +36,6 @@ args:
       long: vertical
   - span:
       help: How many hours to span
-      # default: 24
       takes_value: true
       long: span
       short: s
