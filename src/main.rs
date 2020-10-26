@@ -122,7 +122,7 @@ fn calculate_timezone_hours(
     tzhours
 }
 
-fn print_table(tz_hours: Vec<TimezoneHours>, date: DateTime<Utc>) {
+fn print_table(tz_hours: Vec<TimezoneHours>, date: DateTime<Utc>, no_header: bool) {
     let mut table = Table::new();
     let format = format::FormatBuilder::new()
         .column_separator(' ')
@@ -134,11 +134,13 @@ fn print_table(tz_hours: Vec<TimezoneHours>, date: DateTime<Utc>) {
     for hours in tz_hours {
         let converted = date.with_timezone(&hours.tz);
         let mut row_elems = Vec::new();
-        row_elems.push(Cell::new(hours.name));
-        row_elems.push(Cell::new(
-            &converted.format("(%Z) %a %H:%M %d/%m/%Y").to_string(),
-        ));
-        row_elems.push(Cell::new("·"));
+        if ! no_header {
+            row_elems.push(Cell::new(hours.name));
+            row_elems.push(Cell::new(
+                &converted.format("(%Z) %a %H:%M %d/%m/%Y").to_string(),
+            ));
+            row_elems.push(Cell::new("·"));
+        }
         for hour in hours.hours {
             row_elems.push(Cell::new(&hour));
         }
@@ -173,5 +175,5 @@ fn main() {
             if d_a < d_b { less } else { greater }
         });
     }
-    print_table(tzhours, date);
+    print_table(tzhours, date, matches.is_present("noheader"));
 }

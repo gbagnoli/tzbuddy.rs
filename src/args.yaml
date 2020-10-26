@@ -31,7 +31,7 @@ args:
       short: H
       long: no-header
   - vertical:
-      help: Vertical output
+      help: (deprecated! not used anymore)
       short: v
       long: vertical
   - span:
@@ -40,7 +40,7 @@ args:
       long: span
       short: s
   - ampm:
-      help: Use 12h (am/pm) format
+      help: Use 12h (am/pm) format (not implemented yet)
       short: a
       long: am-pm
   - date:
