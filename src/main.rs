@@ -108,9 +108,9 @@ fn calculate_timezone_hours(
             }
             if offset == 0 {
                 // current hour!
-                hours.push(format!("| {}{}|", shifted.hour(), sfx));
+                hours.push(format!("| {:>02}{}|", shifted.hour(), sfx));
             } else {
-                hours.push(format!(" {}{}", shifted.hour(), sfx));
+                hours.push(format!(" {:>02}{}", shifted.hour(), sfx));
             }
         }
         tzhours.push(TimezoneHours {
