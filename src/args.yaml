@@ -45,5 +45,5 @@ args:
       short: a
       long: am-pm
   - date:
-      help: Calculate times from a specific date
+      help: Calculate times from a specific date (YYYY-mm-dd HH:mm). If omitted, current time is used
       index: 1
