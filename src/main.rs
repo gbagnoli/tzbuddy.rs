@@ -78,7 +78,7 @@ fn calculate_timezone_hours(
     tzs: HashMap<&str, Tz>,
     date: DateTime<Utc>,
     span: i32,
-) -> Vec<TimezoneHours> {
+) -> Vec<TimezoneHours<'_>> {
     let half_span = (span / 2) - 1;
     let mut tzhours = Vec::new();
     for (tz_str, tz) in &tzs {
@@ -116,7 +116,7 @@ fn calculate_timezone_hours(
     tzhours
 }
 
-fn print_table(tz_hours: Vec<TimezoneHours>, date: DateTime<Utc>, no_header: bool) {
+fn print_table(tz_hours: Vec<TimezoneHours<'_>>, date: DateTime<Utc>, no_header: bool) {
     let mut table = Table::new();
     let format = format::FormatBuilder::new()
         .column_separator(' ')
