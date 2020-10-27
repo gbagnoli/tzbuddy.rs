@@ -16,7 +16,8 @@ $ tzbuddy --tz Europe/Rome --tz Europe/Dublin --tz "US/Eastern" --tz "US/Pacific
 Install
 ========
 
-Use cargo for now. Binary distribution will come later.
+Use cargo for now. Binary distribution will come later. Also, this create
+require nightly builds as of 27/10/2020
 
 ```
 cargo install tzbuddy

@@ -12,8 +12,6 @@ jobs:
           toolchain: stable
       - rust/clippy
       - rust/test
-      - rust/build:
-          release: true
 
   rust-tests-nightly:
     description: |
@@ -25,12 +23,11 @@ jobs:
           toolchain: nightly
       - rust/clippy
       - rust/test
+      - rust/build:
+          release: true
 
 workflows:
   version: 2
   run-tests:
     jobs:
-      - rust-tests-stable
       - rust-tests-nightly
-
-

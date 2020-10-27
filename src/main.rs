@@ -1,8 +1,3 @@
-extern crate clap;
-extern crate chrono;
-extern crate chrono_tz;
-extern crate prettytable;
-
 use std::collections::HashMap;
 use chrono_tz::Tz;
 use clap::{App, Values};
