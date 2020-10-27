@@ -21,10 +21,14 @@ jobs:
       - checkout
       - rust/update_toolchain:
           toolchain: nightly
+      - rust/check
+      - rust/format
       - rust/clippy
       - rust/test
       - rust/build:
           release: true
+      - store-artifacts:
+        path: targets/release/tzbuddy
 
 workflows:
   version: 2
