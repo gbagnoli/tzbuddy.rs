@@ -95,12 +95,11 @@ fn calculate_timezone_hours(
                     .checked_sub_signed(Duration::hours(-offset))
                     .unwrap();
             }
-            let mut sfx = " ";
-            if shifted.day() < utc_day {
-                sfx = "-"
-            } else if shifted.day() > utc_day {
-                sfx = "+"
-            }
+            let sfx = match shifted.day().cmp(&utc_day) {
+                Ordering::Greater => "+",
+                Ordering::Less => "-",
+                Ordering::Equal => " ",
+            };
             if offset == 0 {
                 // current hour!
                 hours.push(format!("| {:>02}{}|", shifted.hour(), sfx));
@@ -111,7 +110,7 @@ fn calculate_timezone_hours(
         tzhours.push(TimezoneHours {
             name: tz_str,
             tz: *tz,
-            hours: hours,
+            hours,
         });
     }
     tzhours
@@ -129,7 +128,7 @@ fn print_table(tz_hours: Vec<TimezoneHours>, date: DateTime<Utc>, no_header: boo
     for hours in tz_hours {
         let converted = date.with_timezone(&hours.tz);
         let mut row_elems = Vec::new();
-        if ! no_header {
+        if !no_header {
             row_elems.push(Cell::new(hours.name));
             row_elems.push(Cell::new(
                 &converted.format("(%Z) %a %H:%M %d/%m/%Y").to_string(),
