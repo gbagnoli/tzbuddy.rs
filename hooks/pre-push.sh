@@ -10,7 +10,7 @@ cargo check && \
 echo "* Running cargo fmt"
 cargo fmt -- --check && \
 echo "* Running cargo clippy"
-cargo clippy --all --all-targets -- -Dwarnings -Drust-2018-idioms && \
+cargo clippy --all --all-targets -- -Dwarnings -Drust-2018-idioms --all-features && \
 echo "* Running cargo test"
 cargo test
 

@@ -25,11 +25,10 @@ jobs:
         with:
           command: fmt
           args: --all -- --check
-      - uses: actions-rs/cargo@v1
+      - uses: actions-rs/clippy-check@v1
         with:
-          command: clippy
-          args: -- -Dwarnings -Drust-2018-idioms
-  
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features -Dwarnings -Drust-2018-idioms
   build:
     name: Build and Test
     runs-on: ubuntu-latest
