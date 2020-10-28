@@ -1,4 +1,4 @@
-use chrono::{DateTime, Datelike, Duration, Timelike, Utc};
+use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
 use chrono_tz::Tz;
 use clap::{App, Values};
 use prettytable::{format, Cell, Row, Table};
@@ -35,18 +35,18 @@ fn get_utc_date(cmdline_date: Option<&str>) -> DateTime<Utc> {
     match cmdline_date {
         Some(date) => {
             let format = "%Y-%m-%d %H:%M";
-            match chrono::NaiveDateTime::parse_from_str(date, format) {
-                Ok(naive) => chrono::DateTime::from_utc(naive, chrono::Utc),
+            match NaiveDateTime::parse_from_str(date, format) {
+                Ok(naive) => DateTime::from_utc(naive, Utc),
                 Err(e) => {
                     println!(
                         "Invalid date '{}' for format '{}' ({}). Using now()",
                         date, format, e
                     );
-                    chrono::Utc::now()
+                    Utc::now()
                 }
             }
         }
-        None => chrono::Utc::now(),
+        None => Utc::now(),
     }
 }
 
@@ -149,8 +149,9 @@ fn main() {
     if !matches.is_present("noorder") {
         let date = chrono::Utc::now();
         tzhours.sort_by(|a, b| {
-            let d_a = date.with_timezone(&a.tz).timestamp();
-            let d_b = date.with_timezone(&b.tz).timestamp();
+            let d_a = date.with_timezone(&a.tz).naive_local().timestamp();
+            let d_b = date.with_timezone(&b.tz).naive_local().timestamp();
+            format!("{} vs {}", d_a, d_b);
             let (less, greater) = if inverse {
                 (Ordering::Less, Ordering::Greater)
             } else {
