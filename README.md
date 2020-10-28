@@ -40,3 +40,9 @@ there are git hooks one can use to automatically run checks before commit
 ln -s $(pwd)/hooks/pre-commit.sh .git/hooks/pre-commit
 ln -s $(pwd)/hooks/pre-push.sh .git/hooks/pre-push
 ```
+
+to release:
+
+* bump the versio in Cargo.toml
+* run `cargo release --dry-run -vv`
+* run `cargo release`
