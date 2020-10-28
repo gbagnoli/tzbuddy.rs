@@ -6,7 +6,7 @@ set -o pipefail
 pushd "$(git rev-parse --show-toplevel)" >/dev/null
 cargo check
 cargo check && \
-cargo fmt && \
+cargo fmt -- --check && \
 cargo clippy --all --all-targets -- -Dwarnings -Drust-2018-idioms && \
 cargo test
 

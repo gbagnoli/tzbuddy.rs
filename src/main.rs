@@ -1,9 +1,9 @@
-use std::collections::HashMap;
+use chrono::{DateTime, Datelike, Duration, Timelike, Utc};
 use chrono_tz::Tz;
 use clap::{App, Values};
-use chrono::{DateTime, Utc, Duration, Timelike, Datelike};
+use prettytable::{format, Cell, Row, Table};
 use std::cmp::Ordering;
-use prettytable::{Table, format, Row, Cell};
+use std::collections::HashMap;
 
 #[derive(Debug)]
 struct TimezoneHours<'a> {
@@ -27,7 +27,6 @@ fn get_timezones(cmdline_tzs: Option<Values<'_>>) -> HashMap<&str, Tz> {
             }
         }
         None => println!("No timezones provided."),
-
     }
     timezones
 }
@@ -41,9 +40,7 @@ fn get_utc_date(cmdline_date: Option<&str>) -> DateTime<Utc> {
                 Err(e) => {
                     println!(
                         "Invalid date '{}' for format '{}' ({}). Using now()",
-                        date,
-                        format,
-                        e
+                        date, format, e
                     );
                     chrono::Utc::now()
                 }
@@ -56,20 +53,16 @@ fn get_utc_date(cmdline_date: Option<&str>) -> DateTime<Utc> {
 fn get_span(cmdline_span: Option<&str>) -> i32 {
     let default = 12;
     match cmdline_span {
-        Some(span) => {
-            match span.parse::<i32>() {
-                Ok(val) => val,
-                Err(e) => {
-                    println!(
-                        "Cannot parse {} as int: {}. Using default {}",
-                        span,
-                        e,
-                        default
-                    );
-                    default
-                }
+        Some(span) => match span.parse::<i32>() {
+            Ok(val) => val,
+            Err(e) => {
+                println!(
+                    "Cannot parse {} as int: {}. Using default {}",
+                    span, e, default
+                );
+                default
             }
-        }
+        },
         None => default,
     }
 }
@@ -166,7 +159,11 @@ fn main() {
             if d_a == d_b {
                 return Ordering::Equal;
             }
-            if d_a < d_b { less } else { greater }
+            if d_a < d_b {
+                less
+            } else {
+                greater
+            }
         });
     }
     print_table(tzhours, date, matches.is_present("noheader"));

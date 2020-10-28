@@ -44,10 +44,13 @@ if $circleci; then
   fi
 fi
 if [ "${#rust[@]}" -gt 0 ]; then
-  echo "Running rubocop"
+  echo "Running cargo check"
   cargo check && \
-  cargo fmt && \
+  echo "Running cargo fmt" && \
+  cargo fmt -- --check && \
+  echo "Running cargo clippy" && \
   cargo clippy --all --all-targets -- -Dwarnings -Drust-2018-idioms && \
+  echo "Running cargo test" && \
   cargo test
   ec=$?
 fi
