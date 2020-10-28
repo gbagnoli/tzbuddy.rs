@@ -46,7 +46,7 @@ fi
 if [ "${#rust[@]}" -gt 0 ]; then
   echo "Running rubocop"
   cargo check && \
-  cargo format && \
+  cargo fmt && \
   cargo clippy --all --all-targets -- -Dwarnings -Drust-2018-idioms && \
   cargo test
   ec=$?
