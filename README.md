@@ -1,8 +1,6 @@
 Overview
 =========
 
-[![gbagnoli](https://circleci.com/gh/gbagnoli/tzbuddy.rs.svg?style=svg)](https://circleci.com/gh/gbagnoli/tzbuddy.rs)
-
 tzbuddy is a simple cli to visualize times in different timezones.
 It displays the current hour as well past and future values.
 

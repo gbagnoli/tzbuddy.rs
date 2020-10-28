@@ -17,8 +17,4 @@ cargo test
 echo "* Running shellcheck"
 find . -name '*.sh' -print0 | xargs -0 shellcheck
 
-if [ -x "$(command -v circleci)" ]; then
-  echo "* Validating CircleCI config"
-  circleci config validate .circleci/config.yml 
-fi
 popd >/dev/null

@@ -14,7 +14,6 @@ trap cleanup EXIT
 
 rust=()
 shell=()
-circleci=false
 total=0
 while read -r fname; do
   total=$((total + 1))
@@ -24,9 +23,6 @@ while read -r fname; do
   elif [[ "$fname" == *.sh ]]; then
     shell+=("$fullpath")
   fi
-  if [[ "$fname" == ".circleci/config.yml" ]]; then
-    circleci=true
-  fi
 done < <(git diff --cached --name-only --diff-filter=ACM)
 
 if [ $total -eq 0 ]; then exit 0 ; fi
@@ -35,14 +31,6 @@ git checkout-index --prefix="$tmpdir"/ -af
 set +e
 ec=0
 
-if $circleci; then
-  if [ -x "$(command -v circleci)" ]; then
-    echo "Validating CircleCI config"
-    circleci config validate .circleci/config.yml ; ec=$?
-  else
-    echo "Cannot validate CircleCI config, missing CLI"
-  fi
-fi
 if [ "${#rust[@]}" -gt 0 ]; then
   echo "Running cargo check"
   cargo check && \
