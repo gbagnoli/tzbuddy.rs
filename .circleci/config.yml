@@ -27,7 +27,7 @@ jobs:
       - rust/test
       - rust/build:
           release: true
-      - store-artifacts:
+      - store_artifacts:
           path: targets/release/tzbuddy
 
 workflows:
