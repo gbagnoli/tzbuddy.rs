@@ -151,7 +151,6 @@ fn main() {
         tzhours.sort_by(|a, b| {
             let d_a = date.with_timezone(&a.tz).naive_local().timestamp();
             let d_b = date.with_timezone(&b.tz).naive_local().timestamp();
-            format!("{} vs {}", d_a, d_b);
             let (less, greater) = if inverse {
                 (Ordering::Less, Ordering::Greater)
             } else {
