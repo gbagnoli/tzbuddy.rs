@@ -16,8 +16,9 @@ $ tzbuddy --tz Europe/Rome --tz Europe/Dublin --tz "US/Eastern" --tz "US/Pacific
 Install
 ========
 
-Use cargo for now. Binary distribution will come later. Also, this create
-require nightly builds as of 27/10/2020
+Binaries are provided for [each tagged
+releases](https://github.com/gbagnoli/tzbuddy.rs/releases).
+In alternative one install using cargo
 
 ```
 cargo install tzbuddy
