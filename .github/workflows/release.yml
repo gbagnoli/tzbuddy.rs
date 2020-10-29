@@ -1,0 +1,35 @@
+name: Build and upload binaries to release
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: tzbuddy
+            asset_name: tzbuddy-linux-amd64
+          - os: macos-latest
+            artifact_name: tzbuddy
+            asset_name: tzbuddy-macos-amd64
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+        # this sets ${{ steps.vars.outputs.tag }}
+      - name: Build project
+        run: cargo build --release --locked
+      - name: Upload binary to release
+        uses: svenstaro/upload-release-action@v1-release
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/${{ matrix.artifact_name }}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ steps.vars.outputs.tag }}
