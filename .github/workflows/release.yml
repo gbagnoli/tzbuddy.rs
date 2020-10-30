@@ -39,11 +39,10 @@ jobs:
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ steps.vars.outputs.tag }}
       - name: Bump Homebrew formula
-        uses: mislav/bump-homebrew-formula-action@v1
+        uses: mislav/bump-homebrew-formula-action@v1.7
         with:
           formula-name: tzbuddy
           homebrew-tap: gbagnoli/homebrew-tzbuddy
           base-branch: main
-          commit-message: new release
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
