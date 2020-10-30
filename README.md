@@ -42,6 +42,6 @@ ln -s $(pwd)/hooks/pre-push.sh .git/hooks/pre-push
 
 to release:
 
-* bump the versio in Cargo.toml
+* bump the version in Cargo.toml
 * run `cargo release --dry-run -vv`
 * run `cargo release`
