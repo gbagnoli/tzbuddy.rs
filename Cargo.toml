@@ -1,6 +1,6 @@
 [package]
 name = "tzbuddy"
-version = "0.1.4"
+version = "0.1.5-alpha.0"
 authors = ["Giacomo Bagnoli <gbagnoli@gmail.com>"]
 edition = "2018"
 homepage = "https://github.com/gbagnoli/tzbuddy.rs"
