@@ -1,6 +1,8 @@
 Overview
 =========
 
+![build](https://github.com/gbagnoli/tzbuddy.rs/workflows/build/badge.svg)
+
 tzbuddy is a simple cli to visualize times in different timezones.
 It displays the current hour as well past and future values.
 
