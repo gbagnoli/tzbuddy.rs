@@ -44,5 +44,6 @@ jobs:
           formula-name: tzbuddy
           homebrew-tap: gbagnoli/homebrew-tzbuddy
           base-branch: main
+          download-url: ${{format('{0}/{1}/{2}', 'https://github.com/gbagnoli/tzbuddy.rs/releases/download', steps.vars.output.tag , matrix.asset_name)}}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
