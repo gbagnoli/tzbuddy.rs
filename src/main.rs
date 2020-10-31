@@ -76,6 +76,7 @@ fn calculate_timezone_hours(
     tzs: HashMap<&str, Tz>,
     date: DateTime<Utc>,
     span: i32,
+    am_pm: bool,
 ) -> Vec<TimezoneHours<'_>> {
     let half_span = (span / 2) - 1;
     let mut tzhours = Vec::new();
@@ -98,11 +99,20 @@ fn calculate_timezone_hours(
                 Ordering::Less => "-",
                 Ordering::Equal => " ",
             };
+            let mut hour = format!("{:>02}", shifted.hour());
+            if am_pm {
+                let (am, h) = shifted.hour12();
+                if am {
+                    hour = format!("{:>02}am", h);
+                } else {
+                    hour = format!("{:>02}pm", h);
+                }
+            }
             if offset == 0 {
                 // current hour!
-                hours.push(format!("| {:>02}{}|", shifted.hour(), sfx));
+                hours.push(format!("| {:>02}{}|", hour, sfx));
             } else {
-                hours.push(format!(" {:>02}{}", shifted.hour(), sfx));
+                hours.push(format!(" {:>02}{}", hour, sfx));
             }
         }
         tzhours.push(TimezoneHours {
@@ -151,6 +161,7 @@ fn main() {
         get_timezones(matches.values_of("timezones")),
         date,
         get_span(matches.values_of("span")),
+        matches.is_present("ampm"),
     );
     let inverse = matches.is_present("inverseorder");
     if !matches.is_present("noorder") {

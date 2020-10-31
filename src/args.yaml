@@ -40,7 +40,7 @@ args:
       long: span
       short: s
   - ampm:
-      help: Use 12h (am/pm) format (not implemented yet)
+      help: Use 12h (am/pm) format
       short: a
       long: am-pm
   - date:
