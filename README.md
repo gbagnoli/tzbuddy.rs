@@ -20,10 +20,19 @@ Install
 
 Binaries are provided for [each tagged
 releases](https://github.com/gbagnoli/tzbuddy.rs/releases).
-In alternative one install using cargo
+
+In alternative one install using cargo to build from source
 
 ```
 cargo install tzbuddy
+```
+
+On macOS, with brew, you can use the [brew tap
+repository](https://github.com/gbagnoli/homebrew-tzbuddy)
+
+```
+$ brew tap gbagnoli/tzbuddy
+$ brew install tzbuddy
 ```
 
 Usage
@@ -45,5 +54,7 @@ ln -s $(pwd)/hooks/pre-push.sh .git/hooks/pre-push
 to release:
 
 * bump the version in Cargo.toml
+* make sure to build first so that Cargo.lock gets updated (`cargo build`)
+* commit the Cargo.toml/Cargo.lock files
 * run `cargo release --dry-run -vv`
 * run `cargo release`
