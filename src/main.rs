@@ -5,11 +5,48 @@ use prettytable::{format, Cell, Row, Table};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Eq)]
 struct TimezoneHours<'a> {
     name: &'a str,
     hours: Vec<String>,
     tz: Tz,
+}
+
+impl TimezoneHours<'_> {
+    fn naive_local_timestamp(&self, date: DateTime<Utc>) -> i64 {
+        date.with_timezone(&self.tz).naive_local().timestamp()
+    }
+}
+// ordering here might seem "backwards" but we want eastern TZs to come first i.e. they are
+// threated as "lesser so that calling vec.sort() would have sorting starting from TimezoneHours
+// strucs with eastern timezone - which has bigger value of naive_local_timestamp(now);
+// to do that, all comparisons are other.cmp(self) not the other way around
+impl Ord for TimezoneHours<'_> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let now = Utc::now();
+        other
+            .naive_local_timestamp(now)
+            .cmp(&self.naive_local_timestamp(now))
+    }
+}
+
+impl PartialOrd for TimezoneHours<'_> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for TimezoneHours<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        let now = Utc::now();
+        self.naive_local_timestamp(now) == other.naive_local_timestamp(now)
+    }
+}
+
+enum SortOrder {
+    NONE,
+    EAST,
+    WEST,
 }
 
 fn get_timezones(cmdline_tzs: Option<Values<'_>>) -> HashMap<&str, Tz> {
@@ -77,6 +114,7 @@ fn calculate_timezone_hours(
     date: DateTime<Utc>,
     span: i32,
     am_pm: bool,
+    sort_order: SortOrder,
 ) -> Vec<TimezoneHours<'_>> {
     let half_span = (span / 2) - 1;
     let mut tzhours = Vec::new();
@@ -121,7 +159,17 @@ fn calculate_timezone_hours(
             hours,
         });
     }
-    tzhours
+    match sort_order {
+        SortOrder::NONE => tzhours,
+        SortOrder::EAST => {
+            tzhours.sort();
+            tzhours
+        }
+        SortOrder::WEST => {
+            tzhours.sort_by(|a, b| b.cmp(a));
+            tzhours
+        }
+    }
 }
 
 fn print_table(tz_hours: Vec<TimezoneHours<'_>>, date: DateTime<Utc>, no_header: bool) {
@@ -157,32 +205,18 @@ fn main() {
         .version(clap::crate_version!())
         .get_matches();
     let date = get_utc_date(matches.value_of("date"));
-    let mut tzhours = calculate_timezone_hours(
+    let mut sort_order = SortOrder::EAST;
+    if matches.is_present("noorder") {
+        sort_order = SortOrder::NONE;
+    } else if matches.is_present("inverseorder") {
+        sort_order = SortOrder::WEST;
+    }
+    let tzhours = calculate_timezone_hours(
         get_timezones(matches.values_of("timezones")),
         date,
         get_span(matches.values_of("span")),
         matches.is_present("ampm"),
+        sort_order,
     );
-    let inverse = matches.is_present("inverseorder");
-    if !matches.is_present("noorder") {
-        let date = chrono::Utc::now();
-        tzhours.sort_by(|a, b| {
-            let d_a = date.with_timezone(&a.tz).naive_local().timestamp();
-            let d_b = date.with_timezone(&b.tz).naive_local().timestamp();
-            let (less, greater) = if inverse {
-                (Ordering::Less, Ordering::Greater)
-            } else {
-                (Ordering::Greater, Ordering::Less)
-            };
-            if d_a == d_b {
-                return Ordering::Equal;
-            }
-            if d_a < d_b {
-                less
-            } else {
-                greater
-            }
-        });
-    }
     print_table(tzhours, date, matches.is_present("noheader"));
 }
