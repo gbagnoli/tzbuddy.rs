@@ -37,7 +37,7 @@ if [ "${#rust[@]}" -gt 0 ]; then
   echo "Running cargo fmt" && \
   cargo fmt -- --check && \
   echo "Running cargo clippy" && \
-  cargo clippy --all --all-targets -- -Dwarnings -Drust-2018-idioms --all-features && \
+  cargo clippy --all-features --all --all-targets -- -Dwarnings -Drust-2018-idioms && \
   echo "Running cargo test" && \
   cargo test
   ec=$?

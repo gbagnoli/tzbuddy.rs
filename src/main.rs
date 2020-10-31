@@ -138,7 +138,9 @@ fn print_table(tz_hours: Vec<TimezoneHours<'_>>, date: DateTime<Utc>, no_header:
 
 fn main() {
     let config_yaml = clap::load_yaml!("args.yaml");
-    let matches = App::from(config_yaml).get_matches();
+    let matches = App::from(config_yaml)
+        .version(clap::crate_version!())
+        .get_matches();
     let date = get_utc_date(matches.value_of("date"));
     let mut tzhours = calculate_timezone_hours(
         get_timezones(matches.values_of("timezones")),
