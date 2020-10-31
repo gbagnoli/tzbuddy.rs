@@ -36,6 +36,7 @@ args:
   - span:
       help: How many hours to span
       takes_value: true
+      multiple: true
       long: span
       short: s
   - ampm:

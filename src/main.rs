@@ -50,19 +50,24 @@ fn get_utc_date(cmdline_date: Option<&str>) -> DateTime<Utc> {
     }
 }
 
-fn get_span(cmdline_span: Option<&str>) -> i32 {
+fn get_span(cmdline_span: Option<Values<'_>>) -> i32 {
+    // if multiple are provided, returns the last one on the commandline.
+    // if none are provided, returns the default
     let default = 12;
     match cmdline_span {
-        Some(span) => match span.parse::<i32>() {
-            Ok(val) => val,
-            Err(e) => {
-                println!(
-                    "Cannot parse {} as int: {}. Using default {}",
-                    span, e, default
-                );
-                default
+        Some(values) => {
+            let span = values.last().unwrap();
+            match span.parse::<i32>() {
+                Ok(val) => val,
+                Err(e) => {
+                    println!(
+                        "Cannot parse {} as int: {}. Using default {}",
+                        span, e, default
+                    );
+                    default
+                }
             }
-        },
+        }
         None => default,
     }
 }
@@ -145,7 +150,7 @@ fn main() {
     let mut tzhours = calculate_timezone_hours(
         get_timezones(matches.values_of("timezones")),
         date,
-        get_span(matches.value_of("span")),
+        get_span(matches.values_of("span")),
     );
     let inverse = matches.is_present("inverseorder");
     if !matches.is_present("noorder") {
