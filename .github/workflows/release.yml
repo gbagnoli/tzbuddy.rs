@@ -13,7 +13,7 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: tzbuddy
-            asset_name: tzbuddy-linux-amd64.gz
+            asset_name: tzbuddy-linux-amd64.tar.gz
           - os: macos-latest
             artifact_name: tzbuddy
             asset_name: tzbuddy-macos-amd64.tar.gz
@@ -49,7 +49,7 @@ jobs:
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
         # this sets ${{ steps.vars.outputs.tag }}
       - name: Commit new formula
-        uses: mislav/bump-homebrew-formula-action@v1.7
+        uses: mislav/bump-homebrew-formula-action@v1
         with:
           formula-name: tzbuddy
           homebrew-tap: gbagnoli/homebrew-tzbuddy
