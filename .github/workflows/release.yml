@@ -38,12 +38,22 @@ jobs:
           file: target/release/${{ matrix.asset_name }}
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ steps.vars.outputs.tag }}
-      - name: Bump Homebrew formula
+
+  bump:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+        # this sets ${{ steps.vars.outputs.tag }}
+      - name: Commit new formula
         uses: mislav/bump-homebrew-formula-action@v1.7
         with:
           formula-name: tzbuddy
           homebrew-tap: gbagnoli/homebrew-tzbuddy
           base-branch: main
-          download-url: ${{format('{0}/{1}/{2}', 'https://github.com/gbagnoli/tzbuddy.rs/releases/download', steps.vars.outputs.tag , matrix.asset_name)}}
+          download-url: ${{format('https://github.com/gbagnoli/tzbuddy.rs/releases/download/{0}/tzbuddy-macos-amd64.tar.gz',  steps.vars.outputs.tag)}}
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
