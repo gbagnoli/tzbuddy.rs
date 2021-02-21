@@ -44,9 +44,9 @@ impl PartialEq for TimezoneHours<'_> {
 }
 
 enum SortOrder {
-    NONE,
-    EAST,
-    WEST,
+    None,
+    East,
+    West,
 }
 
 fn get_timezones(cmdline_tzs: Option<Values<'_>>) -> HashMap<&str, Tz> {
@@ -160,12 +160,12 @@ fn calculate_timezone_hours(
         });
     }
     match sort_order {
-        SortOrder::NONE => tzhours,
-        SortOrder::EAST => {
+        SortOrder::None => tzhours,
+        SortOrder::East => {
             tzhours.sort();
             tzhours
         }
-        SortOrder::WEST => {
+        SortOrder::West => {
             tzhours.sort_by(|a, b| b.cmp(a));
             tzhours
         }
@@ -213,11 +213,11 @@ fn main() {
         .version(clap::crate_version!())
         .get_matches();
     let date = get_utc_date(matches.value_of("date"));
-    let mut sort_order = SortOrder::EAST;
+    let mut sort_order = SortOrder::East;
     if matches.is_present("noorder") {
-        sort_order = SortOrder::NONE;
+        sort_order = SortOrder::None;
     } else if matches.is_present("inverseorder") {
-        sort_order = SortOrder::WEST;
+        sort_order = SortOrder::West;
     }
     let tzhours = calculate_timezone_hours(
         get_timezones(matches.values_of("timezones")),
