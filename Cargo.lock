@@ -531,7 +531,7 @@ dependencies = [
 
 [[package]]
 name = "tzbuddy"
-version = "0.1.10-alpha.0"
+version = "0.1.10"
 dependencies = [
  "chrono",
  "chrono-tz",
