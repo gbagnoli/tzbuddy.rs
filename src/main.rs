@@ -139,11 +139,11 @@ fn calculate_timezone_hours(
             };
             let mut hour = format!("{:>02}", shifted.hour());
             if am_pm {
-                let (am, h) = shifted.hour12();
-                if am {
-                    hour = format!("{:>02}am", h);
+                let (pm, h) = shifted.hour12();
+                if pm {
+                    hour = format!("{:>2} pm", h);
                 } else {
-                    hour = format!("{:>02}pm", h);
+                    hour = format!("{:>2} am", h);
                 }
             }
             if offset == 0 {
@@ -172,7 +172,12 @@ fn calculate_timezone_hours(
     }
 }
 
-fn print_table(tz_hours: Vec<TimezoneHours<'_>>, date: DateTime<Utc>, no_header: bool) {
+fn print_table(
+    tz_hours: Vec<TimezoneHours<'_>>,
+    date: DateTime<Utc>,
+    no_header: bool,
+    am_pm: bool,
+) {
     let mut table = Table::new();
     let format = format::FormatBuilder::new()
         .column_separator(' ')
@@ -181,14 +186,17 @@ fn print_table(tz_hours: Vec<TimezoneHours<'_>>, date: DateTime<Utc>, no_header:
         .build();
 
     table.set_format(format);
+    let tz_format = if am_pm {
+        "(%Z) %a %l:%M %P %d/%m/%Y"
+    } else {
+        "(%Z) %a %H:%M %d/%m/%Y"
+    };
     for hours in tz_hours {
         let converted = date.with_timezone(&hours.tz);
         let mut row_elems = Vec::new();
         if !no_header {
             row_elems.push(Cell::new(hours.name));
-            row_elems.push(Cell::new(
-                &converted.format("(%Z) %a %H:%M %d/%m/%Y").to_string(),
-            ));
+            row_elems.push(Cell::new(&converted.format(tz_format).to_string()));
             row_elems.push(Cell::new("·"));
         }
         for hour in hours.hours {
@@ -218,5 +226,10 @@ fn main() {
         matches.is_present("ampm"),
         sort_order,
     );
-    print_table(tzhours, date, matches.is_present("noheader"));
+    print_table(
+        tzhours,
+        date,
+        matches.is_present("noheader"),
+        matches.is_present("ampm"),
+    );
 }
