@@ -1,18 +1,46 @@
 use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
 use chrono_tz::Tz;
-use clap::{App, Values};
+use clap::Parser;
 use prettytable::{format, Cell, Row, Table};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
 #[derive(Debug, Eq)]
-struct TimezoneHours<'a> {
-    name: &'a str,
+struct TimezoneHours {
+    name: String,
     hours: Vec<String>,
     tz: Tz,
 }
 
-impl TimezoneHours<'_> {
+#[derive(Parser, Debug)]
+#[clap(name = clap::crate_name!())]
+#[clap(author = clap::crate_authors!("\n"))]
+#[clap(version=clap::crate_version!())]
+#[clap(about=clap::crate_description!())]
+struct Cli {
+    /// Which timezone(s) to display
+    #[clap(short = 'z', long = "tz")]
+    timezones: Vec<String>,
+    /// Do not order timezones
+    #[clap(short = 'O', long = "no-order", group = "order")]
+    noorder: bool,
+    /// Sort TZ west to east
+    #[clap(short = 'I', long = "inverse-order", group = "order")]
+    inverseorder: bool,
+    /// Do not display header
+    #[clap(short = 'H', long = "no-header")]
+    noheader: bool,
+    /// How many hours to span
+    #[clap(short, long, default_value_t = 12)]
+    span: i32,
+    /// Use 12h (am/pm) format
+    #[clap(short, long = "am-pm")]
+    ampm: bool,
+    ///Calculate times from a specific date (YYYY-mm-dd HH:mm). If omitted, current time is used
+    date: Option<String>,
+}
+
+impl TimezoneHours {
     fn naive_local_timestamp(&self, date: DateTime<Utc>) -> i64 {
         date.with_timezone(&self.tz).naive_local().timestamp()
     }
@@ -21,7 +49,7 @@ impl TimezoneHours<'_> {
 // threated as "lesser so that calling vec.sort() would have sorting starting from TimezoneHours
 // strucs with eastern timezone - which has bigger value of naive_local_timestamp(now);
 // to do that, all comparisons are other.cmp(self) not the other way around
-impl Ord for TimezoneHours<'_> {
+impl Ord for TimezoneHours {
     fn cmp(&self, other: &Self) -> Ordering {
         let now = Utc::now();
         other
@@ -30,13 +58,13 @@ impl Ord for TimezoneHours<'_> {
     }
 }
 
-impl PartialOrd for TimezoneHours<'_> {
+impl PartialOrd for TimezoneHours {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl PartialEq for TimezoneHours<'_> {
+impl PartialEq for TimezoneHours {
     fn eq(&self, other: &Self) -> bool {
         let now = Utc::now();
         self.naive_local_timestamp(now) == other.naive_local_timestamp(now)
@@ -49,30 +77,29 @@ enum SortOrder {
     West,
 }
 
-fn get_timezones(cmdline_tzs: Option<Values<'_>>) -> HashMap<&str, Tz> {
+fn get_timezones(cmdline_tzs: Vec<String>) -> HashMap<String, Tz> {
     let mut timezones = HashMap::new();
-    match cmdline_tzs {
-        Some(values) => {
-            for tz_str in values {
-                let tz_opt = tz_str.parse();
-                match tz_opt {
-                    Ok(tz) => {
-                        timezones.insert(tz_str, tz);
-                    }
-                    Err(e) => println!("{}: discarding", e),
+    if !cmdline_tzs.is_empty() {
+        for tz_str in cmdline_tzs {
+            let tz_opt = tz_str.parse();
+            match tz_opt {
+                Ok(tz) => {
+                    timezones.insert(tz_str, tz);
                 }
+                Err(e) => println!("{}: discarding", e),
             }
         }
-        None => println!("No timezones provided."),
+    } else {
+        println!("No timezones provided.");
     }
     timezones
 }
 
-fn get_utc_date(cmdline_date: Option<&str>) -> DateTime<Utc> {
+fn get_utc_date(cmdline_date: Option<String>) -> DateTime<Utc> {
     match cmdline_date {
         Some(date) => {
             let format = "%Y-%m-%d %H:%M";
-            match NaiveDateTime::parse_from_str(date, format) {
+            match NaiveDateTime::parse_from_str(&date, format) {
                 Ok(naive) => DateTime::from_utc(naive, Utc),
                 Err(e) => {
                     println!(
@@ -87,43 +114,21 @@ fn get_utc_date(cmdline_date: Option<&str>) -> DateTime<Utc> {
     }
 }
 
-fn get_span(cmdline_span: Option<Values<'_>>) -> i32 {
-    // if multiple are provided, returns the last one on the commandline.
-    // if none are provided, returns the default
-    let default = 12;
-    match cmdline_span {
-        Some(values) => {
-            let span = values.last().unwrap();
-            match span.parse::<i32>() {
-                Ok(val) => val,
-                Err(e) => {
-                    println!(
-                        "Cannot parse {} as int: {}. Using default {}",
-                        span, e, default
-                    );
-                    default
-                }
-            }
-        }
-        None => default,
-    }
-}
-
 fn calculate_timezone_hours(
-    tzs: HashMap<&str, Tz>,
+    tzs: HashMap<String, Tz>,
     date: DateTime<Utc>,
     span: i32,
     am_pm: bool,
     sort_order: SortOrder,
-) -> Vec<TimezoneHours<'_>> {
+) -> Vec<TimezoneHours> {
     let half_span = (span / 2) - 1;
     let mut tzhours = Vec::new();
-    for (tz_str, tz) in &tzs {
+    for (tz_str, tz) in tzs {
         let mut hours = Vec::new();
         for i in 0..span {
             let offset = i64::from(i - half_span);
             let utc_day = date.day();
-            let converted = date.with_timezone(tz);
+            let converted = date.with_timezone(&tz);
             let mut shifted = converted
                 .checked_add_signed(Duration::hours(offset))
                 .unwrap();
@@ -155,7 +160,7 @@ fn calculate_timezone_hours(
         }
         tzhours.push(TimezoneHours {
             name: tz_str,
-            tz: *tz,
+            tz,
             hours,
         });
     }
@@ -172,12 +177,7 @@ fn calculate_timezone_hours(
     }
 }
 
-fn print_table(
-    tz_hours: Vec<TimezoneHours<'_>>,
-    date: DateTime<Utc>,
-    no_header: bool,
-    am_pm: bool,
-) {
+fn print_table(tz_hours: Vec<TimezoneHours>, date: DateTime<Utc>, no_header: bool, am_pm: bool) {
     let mut table = Table::new();
     let format = format::FormatBuilder::new()
         .column_separator(' ')
@@ -195,7 +195,7 @@ fn print_table(
         let converted = date.with_timezone(&hours.tz);
         let mut row_elems = Vec::new();
         if !no_header {
-            row_elems.push(Cell::new(hours.name));
+            row_elems.push(Cell::new(&hours.name));
             row_elems.push(Cell::new(&converted.format(tz_format).to_string()));
             row_elems.push(Cell::new("·"));
         }
@@ -208,28 +208,21 @@ fn print_table(
 }
 
 fn main() {
-    let config_yaml = clap::load_yaml!("args.yaml");
-    let matches = App::from(config_yaml)
-        .version(clap::crate_version!())
-        .get_matches();
-    let date = get_utc_date(matches.value_of("date"));
+    let cli = Cli::parse();
+
+    let date = get_utc_date(cli.date);
     let mut sort_order = SortOrder::East;
-    if matches.is_present("noorder") {
+    if cli.noorder {
         sort_order = SortOrder::None;
-    } else if matches.is_present("inverseorder") {
+    } else if cli.inverseorder {
         sort_order = SortOrder::West;
     }
     let tzhours = calculate_timezone_hours(
-        get_timezones(matches.values_of("timezones")),
+        get_timezones(cli.timezones),
         date,
-        get_span(matches.values_of("span")),
-        matches.is_present("ampm"),
+        cli.span,
+        cli.ampm,
         sort_order,
     );
-    print_table(
-        tzhours,
-        date,
-        matches.is_present("noheader"),
-        matches.is_present("ampm"),
-    );
+    print_table(tzhours, date, cli.noheader, cli.ampm);
 }
