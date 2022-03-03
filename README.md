@@ -53,8 +53,9 @@ ln -s $(pwd)/hooks/pre-push.sh .git/hooks/pre-push
 
 to release:
 
+* install cargo release `cargo install cargo-release`
 * bump the version in Cargo.toml
 * make sure to build first so that Cargo.lock gets updated (`cargo build`)
 * commit the Cargo.toml/Cargo.lock files
-* run `cargo release --dry-run -vv`
-* run `cargo release`
+* run `cargo release -v`
+* run `cargo release -v --execute` to push the release
