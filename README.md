@@ -38,8 +38,15 @@ $ brew install tzbuddy
 Usage
 =======
 
-See `tzbuddy --help` for all available options. There is no configuration, so
-you probably want to create an alias in your shell.
+See `tzbuddy --help` for all available options.
+
+Prior to version `0.3`, `tzbuddy` did not support configuration files, and you
+had to create an alias on the shell.
+
+Since version `0.3` there is support for configuration. Simply pass `--save` and
+`tzbuddy` will remember flags when running without. Eventual options on the
+commandline takes precedence. `--no-config` will skip loading the config.
+Running `--save` without any other option will save an empty config.
 
 Development
 ===========
