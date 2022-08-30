@@ -1,7 +1,9 @@
+use anyhow::Result;
 use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
 use chrono_tz::Tz;
 use clap::Parser;
 use prettytable::{format, Cell, Row, Table};
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
@@ -12,7 +14,7 @@ struct TimezoneHours {
     tz: Tz,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, Serialize, Deserialize, Default)]
 #[clap(name = clap::crate_name!())]
 #[clap(author = clap::crate_authors!("\n"))]
 #[clap(version=clap::crate_version!())]
@@ -31,11 +33,17 @@ struct Cli {
     #[clap(short = 'H', long = "no-header")]
     noheader: bool,
     /// How many hours to span
-    #[clap(short, long, default_value_t = 12)]
-    span: i32,
+    #[clap(short, long)]
+    span: Option<i32>,
     /// Use 12h (am/pm) format
     #[clap(short, long = "am-pm")]
     ampm: bool,
+    /// Save config with current args
+    #[clap(long)]
+    save: bool,
+    /// Do not load config at startup
+    #[clap(long = "no-config")]
+    noconfig: bool,
     ///Calculate times from a specific date (YYYY-mm-dd HH:mm). If omitted, current time is used
     date: Option<String>,
 }
@@ -207,22 +215,40 @@ fn print_table(tz_hours: Vec<TimezoneHours>, date: DateTime<Utc>, no_header: boo
     table.printstd();
 }
 
-fn main() {
+fn main() -> Result<()> {
     let cli = Cli::parse();
+    if cli.save {
+        println!("Saving config");
+        confy::store("tzbuddy", &cli)?;
+    }
+    let config: Cli = if cli.noconfig {
+        Cli::default()
+    } else {
+        confy::load("tzbuddy")?
+    };
 
     let date = get_utc_date(cli.date);
     let mut sort_order = SortOrder::East;
-    if cli.noorder {
+    if cli.noorder || config.noorder {
         sort_order = SortOrder::None;
-    } else if cli.inverseorder {
+    } else if cli.inverseorder || config.noorder {
         sort_order = SortOrder::West;
     }
-    let tzhours = calculate_timezone_hours(
-        get_timezones(cli.timezones),
+    let timezones = match cli.timezones.len() {
+        0 => config.timezones,
+        _ => cli.timezones,
+    };
+    let span = match cli.span {
+        None => config.span.unwrap_or(12),
+        Some(span) => span,
+    };
+    let ampm = cli.ampm || config.ampm;
+    let tzhours = calculate_timezone_hours(get_timezones(timezones), date, span, ampm, sort_order);
+    print_table(
+        tzhours,
         date,
-        cli.span,
-        cli.ampm,
-        sort_order,
+        cli.noheader || config.noheader,
+        cli.ampm || config.ampm,
     );
-    print_table(tzhours, date, cli.noheader, cli.ampm);
+    Ok(())
 }
