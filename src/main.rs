@@ -231,7 +231,7 @@ fn main() -> Result<()> {
     let mut sort_order = SortOrder::East;
     if cli.noorder || config.noorder {
         sort_order = SortOrder::None;
-    } else if cli.inverseorder || config.noorder {
+    } else if cli.inverseorder || config.inverseorder {
         sort_order = SortOrder::West;
     }
     let timezones = match cli.timezones.len() {
@@ -244,11 +244,6 @@ fn main() -> Result<()> {
     };
     let ampm = cli.ampm || config.ampm;
     let tzhours = calculate_timezone_hours(get_timezones(timezones), date, span, ampm, sort_order);
-    print_table(
-        tzhours,
-        date,
-        cli.noheader || config.noheader,
-        cli.ampm || config.ampm,
-    );
+    print_table(tzhours, date, cli.noheader || config.noheader, ampm);
     Ok(())
 }
