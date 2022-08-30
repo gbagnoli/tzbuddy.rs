@@ -20,7 +20,8 @@ struct TimezoneHours {
 #[clap(version=clap::crate_version!())]
 #[clap(about=clap::crate_description!())]
 struct Cli {
-    /// Which timezone(s) to display
+    /// Which timezone(s) to display.
+    /// List at: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
     #[clap(short = 'z', long = "tz")]
     timezones: Vec<String>,
     /// Do not order timezones

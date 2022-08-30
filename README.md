@@ -40,6 +40,10 @@ Usage
 
 See `tzbuddy --help` for all available options.
 
+tzbuddy uses timezones from the [IANA database](http://www.iana.org/time-zones).
+A list of available timezones can be found on
+[wikipedia](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
 Prior to version `0.3`, `tzbuddy` did not support configuration files, and you
 had to create an alias on the shell.
 
