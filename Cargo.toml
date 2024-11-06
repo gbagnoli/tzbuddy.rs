@@ -18,5 +18,5 @@ chrono = "^0.4"
 chrono-tz = "^0.6"
 clap = {version= "3", features=["cargo", "derive"]}
 confy = "^0.4"
-prettytable-rs = "^0.9"
+prettytable-rs = "^0.10"
 serde = { version = "1.0", features = ["derive"] }
