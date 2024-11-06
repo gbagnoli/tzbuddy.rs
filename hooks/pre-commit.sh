@@ -7,6 +7,7 @@ pushd "$(git rev-parse --show-toplevel)" >/dev/null
 tmpdir="$(mktemp -d)"
 
 cleanup() {
+  # shellcheck disable=SC2317
   rm -rf "$tmpdir"
 }
 

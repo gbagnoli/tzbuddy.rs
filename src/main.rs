@@ -51,7 +51,10 @@ struct Cli {
 
 impl TimezoneHours {
     fn naive_local_timestamp(&self, date: DateTime<Utc>) -> i64 {
-        date.with_timezone(&self.tz).naive_local().timestamp()
+        date.with_timezone(&self.tz)
+            .naive_local()
+            .and_utc()
+            .timestamp()
     }
 }
 // ordering here might seem "backwards" but we want eastern TZs to come first i.e. they are
@@ -109,7 +112,7 @@ fn get_utc_date(cmdline_date: Option<String>) -> DateTime<Utc> {
         Some(date) => {
             let format = "%Y-%m-%d %H:%M";
             match NaiveDateTime::parse_from_str(&date, format) {
-                Ok(naive) => DateTime::from_utc(naive, Utc),
+                Ok(naive) => DateTime::from_naive_utc_and_offset(naive, Utc),
                 Err(e) => {
                     println!(
                         "Invalid date '{}' for format '{}' ({}). Using now()",
