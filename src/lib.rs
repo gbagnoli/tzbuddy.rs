@@ -1,7 +1,7 @@
 use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
 use chrono_tz::Tz;
 use clap::Parser;
-use prettytable::{Cell, Row, Table, format};
+use prettytable::{format, Cell, Row, Table};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashMap;

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use tzbuddy::{Cli, SortOrder, calculate_timezone_hours, get_timezones, get_utc_date, print_table};
+use tzbuddy::{calculate_timezone_hours, get_timezones, get_utc_date, print_table, Cli, SortOrder};
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
