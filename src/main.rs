@@ -2,7 +2,7 @@ use anyhow::Result;
 use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
 use chrono_tz::Tz;
 use clap::Parser;
-use prettytable::{format, Cell, Row, Table};
+use prettytable::{Cell, Row, Table, format};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -222,13 +222,16 @@ fn print_table(tz_hours: Vec<TimezoneHours>, date: DateTime<Utc>, no_header: boo
 fn main() -> Result<()> {
     let cli = Cli::parse();
     if cli.save {
-        println!("Saving config");
-        confy::store("tzbuddy", &cli)?;
+        println!(
+            "Saving config at {}",
+            confy::get_configuration_file_path("tzbuddy", "tzbuddy")?.display()
+        );
+        confy::store("tzbuddy", "tzbuddy", &cli)?;
     }
     let config: Cli = if cli.noconfig {
         Cli::default()
     } else {
-        confy::load("tzbuddy")?
+        confy::load("tzbuddy", "tzbuddy")?
     };
 
     let date = get_utc_date(cli.date);

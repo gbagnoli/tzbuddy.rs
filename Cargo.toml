@@ -13,10 +13,10 @@ categories = ["command-line-utilities"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "^1"
-chrono = "^0.4"
-chrono-tz = "^0.6"
+anyhow = "*"
+chrono = "*"
+chrono-tz = "*"
 clap = {version= "3", features=["cargo", "derive"]}
-confy = "^0.4"
-prettytable-rs = "^0.10"
-serde = { version = "1.0", features = ["derive"] }
+confy = "*"
+prettytable-rs = "*"
+serde = { version = "*", features = ["derive"] }
