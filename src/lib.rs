@@ -1,8 +1,6 @@
 use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
 use chrono_tz::Tz;
-use clap::Parser;
 use prettytable::{format, Cell, Row, Table};
-use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
@@ -11,41 +9,6 @@ pub struct TimezoneHours {
     name: String,
     hours: Vec<String>,
     tz: Tz,
-}
-
-#[derive(Parser, Debug, Serialize, Deserialize, Default)]
-#[clap(name = clap::crate_name!())]
-#[clap(author = clap::crate_authors!("\n"))]
-#[clap(version=clap::crate_version!())]
-#[clap(about=clap::crate_description!())]
-pub struct Cli {
-    /// Which timezone(s) to display.
-    /// List at: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-    #[clap(short = 'z', long = "tz")]
-    pub timezones: Vec<String>,
-    /// Do not order timezones
-    #[clap(short = 'O', long = "no-order", group = "order")]
-    pub noorder: bool,
-    /// Sort TZ west to east
-    #[clap(short = 'I', long = "inverse-order", group = "order")]
-    pub inverseorder: bool,
-    /// Do not display header
-    #[clap(short = 'H', long = "no-header")]
-    pub noheader: bool,
-    /// How many hours to span
-    #[clap(short, long)]
-    pub span: Option<i32>,
-    /// Use 12h (am/pm) format
-    #[clap(short, long = "am-pm")]
-    pub ampm: bool,
-    /// Save config with current args
-    #[clap(long)]
-    pub save: bool,
-    /// Do not load config at startup
-    #[clap(long = "no-config")]
-    pub noconfig: bool,
-    ///Calculate times from a specific date (YYYY-mm-dd HH:mm). If omitted, current time is used
-    pub date: Option<String>,
 }
 
 impl TimezoneHours {
