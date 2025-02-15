@@ -1,8 +1,8 @@
 [package]
 name = "tzbuddy"
-version = "0.4.3"
+version = "0.4.4"
 authors = ["Giacomo Bagnoli <gbagnoli@gmail.com>"]
-edition = "2024"
+edition = "2021"
 homepage = "https://github.com/gbagnoli/tzbuddy.rs"
 repository = "https://github.com/gbagnoli/tzbuddy.rs"
 license-file = "LICENSE"
