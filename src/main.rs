@@ -2,7 +2,7 @@ use anyhow::Result;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use tzbuddy::{
-    calculate_timezone_hours, get_timezones, get_utc_date, print_table, print_timezones, SortOrder,
+    SortOrder, calculate_timezone_hours, get_timezones, get_utc_date, print_table, print_timezones,
 };
 
 #[derive(Parser, Debug, Serialize, Deserialize, Default)]

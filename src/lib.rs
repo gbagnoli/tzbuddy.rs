@@ -1,7 +1,7 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
-use chrono_tz::{Tz, TZ_VARIANTS};
-use prettytable::{format, Cell, Row, Table};
+use chrono_tz::{TZ_VARIANTS, Tz};
+use prettytable::{Cell, Row, Table, format};
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
