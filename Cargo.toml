@@ -2,7 +2,7 @@
 name = "tzbuddy"
 version = "0.5.0"
 authors = ["Giacomo Bagnoli <gbagnoli@gmail.com>"]
-edition = "2021"
+edition = "2024"
 homepage = "https://github.com/gbagnoli/tzbuddy.rs"
 repository = "https://github.com/gbagnoli/tzbuddy.rs"
 license-file = "LICENSE"
