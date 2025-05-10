@@ -19,14 +19,13 @@ jobs:
             asset_name: tzbuddy-macos-amd64.tar.gz
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
+        uses: actions/checkout@v4
       - name: Set output
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
         # this sets ${{ steps.vars.outputs.tag }}
+      - name: set rust version
+        run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
       - name: Build project
         run: cargo build --release --locked
       - name: Create tar
