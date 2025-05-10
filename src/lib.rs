@@ -28,7 +28,7 @@ fn by_regions() -> BTreeMap<&'static str, BTreeSet<Option<&'static str>>> {
 
 fn print_regions() -> Result<()> {
     for (region, _tzs) in by_regions().iter() {
-        println!("{}", region);
+        println!("{region}");
     }
     Ok(())
 }
@@ -41,10 +41,10 @@ pub fn print_timezones(arg: Option<String>) -> Result<()> {
                     for tz in tzs.iter() {
                         match tz {
                             Some(x) => {
-                                println!("{}/{}", region, x);
+                                println!("{region}/{x}");
                             }
                             None => {
-                                println!("{}", region);
+                                println!("{region}");
                             }
                         }
                     }
@@ -115,7 +115,7 @@ pub fn get_timezones(cmdline_tzs: Vec<String>) -> HashMap<String, Tz> {
                 Ok(tz) => {
                     timezones.insert(tz_str, tz);
                 }
-                Err(e) => println!("{}: discarding", e),
+                Err(e) => println!("{e}: discarding"),
             }
         }
     } else {
@@ -131,10 +131,7 @@ pub fn get_utc_date(cmdline_date: Option<String>) -> DateTime<Utc> {
             match NaiveDateTime::parse_from_str(&date, format) {
                 Ok(naive) => DateTime::from_naive_utc_and_offset(naive, Utc),
                 Err(e) => {
-                    println!(
-                        "Invalid date '{}' for format '{}' ({}). Using now()",
-                        date, format, e
-                    );
+                    println!("Invalid date '{date}' for format '{format}' ({e}). Using now()");
                     Utc::now()
                 }
             }
@@ -175,16 +172,16 @@ pub fn calculate_timezone_hours(
             if am_pm {
                 let (pm, h) = shifted.hour12();
                 if pm {
-                    hour = format!("{:>2} pm", h);
+                    hour = format!("{h:>2} pm");
                 } else {
-                    hour = format!("{:>2} am", h);
+                    hour = format!("{h:>2} am");
                 }
             }
             if offset == 0 {
                 // current hour!
-                hours.push(format!("| {:>02}{}|", hour, sfx));
+                hours.push(format!("| {hour:>02}{sfx}|"));
             } else {
-                hours.push(format!(" {:>02}{}", hour, sfx));
+                hours.push(format!(" {hour:>02}{sfx}"));
             }
         }
         tzhours.push(TimezoneHours {
