@@ -1,8 +1,63 @@
+use anyhow::{bail, Result};
 use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
-use chrono_tz::Tz;
+use chrono_tz::{Tz, TZ_VARIANTS};
 use prettytable::{format, Cell, Row, Table};
 use std::cmp::Ordering;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+
+fn by_regions() -> BTreeMap<&'static str, BTreeSet<Option<&'static str>>> {
+    let mut res: BTreeMap<&'static str, BTreeSet<Option<&'static str>>> = BTreeMap::new();
+    for tz in TZ_VARIANTS.iter() {
+        let name = tz.name();
+        let mut parts = name.split('/');
+        let region = parts.next().unwrap_or("Unknown");
+        let location = parts.next();
+        match res.get_mut(&region) {
+            Some(tzs) => {
+                tzs.insert(location);
+            }
+            None => {
+                let mut tzs = BTreeSet::new();
+                tzs.insert(location);
+                res.insert(region, tzs);
+            }
+        }
+    }
+    res
+}
+
+fn print_regions() -> Result<()> {
+    for (region, _tzs) in by_regions().iter() {
+        println!("{}", region);
+    }
+    Ok(())
+}
+
+pub fn print_timezones(arg: Option<String>) -> Result<()> {
+    match arg {
+        Some(region) => {
+            match by_regions().get(&region.as_str()) {
+                Some(tzs) => {
+                    for tz in tzs.iter() {
+                        match tz {
+                            Some(x) => {
+                                println!("{}/{}", region, x);
+                            }
+                            None => {
+                                println!("{}", region);
+                            }
+                        }
+                    }
+                }
+                None => {
+                    bail!("Cannot find region {}", region);
+                }
+            }
+            Ok(())
+        }
+        None => print_regions(),
+    }
+}
 
 #[derive(Debug, Eq)]
 pub struct TimezoneHours {

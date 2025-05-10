@@ -1,7 +1,9 @@
 use anyhow::Result;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
-use tzbuddy::{calculate_timezone_hours, get_timezones, get_utc_date, print_table, SortOrder};
+use tzbuddy::{
+    calculate_timezone_hours, get_timezones, get_utc_date, print_table, print_timezones, SortOrder,
+};
 
 #[derive(Parser, Debug, Serialize, Deserialize, Default)]
 #[clap(name = clap::crate_name!())]
@@ -13,6 +15,10 @@ struct Cli {
     /// List at: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
     #[clap(short = 'z', long = "tz")]
     timezones: Vec<String>,
+    /// list timezones for a given continent.
+    /// If no continent is set, then prints continents
+    #[clap(short = 'L', long = "list-timezones")]
+    list_timezones: Option<Option<String>>,
     /// Do not order timezones
     #[clap(short = 'O', long = "no-order", group = "order")]
     noorder: bool,
@@ -40,6 +46,9 @@ struct Cli {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
+    if let Some(arg) = cli.list_timezones {
+        return print_timezones(arg);
+    }
     if cli.save {
         println!(
             "Saving config at {}",

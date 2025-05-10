@@ -43,6 +43,9 @@ See `tzbuddy --help` for all available options.
 tzbuddy uses timezones from the [IANA database](http://www.iana.org/time-zones).
 A list of available timezones can be found on
 [wikipedia](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+You can run `tzbuddy --list-timezones` to have a list of regions, or `tzbuddy
+--list-timezones <region>` to print the list of available timezone identifiers
+in that region.
 
 Prior to version `0.3`, `tzbuddy` did not support configuration files, and you
 had to create an alias on the shell.
@@ -51,6 +54,8 @@ Since version `0.3` there is support for configuration. Simply pass `--save` and
 `tzbuddy` will remember flags when running without. Eventual options on the
 commandline takes precedence. `--no-config` will skip loading the config.
 Running `--save` without any other option will save an empty config.
+Configs are skipped for the `--list-timezones` above, and that option is never
+stored.
 
 Development
 ===========
