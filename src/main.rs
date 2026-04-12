@@ -1,9 +1,9 @@
 use anyhow::Result;
+use chrono_tz::Tz;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use tzbuddy::{
-    SortOrder, calculate_timezone_hours, generate_table, get_region_timezones, get_timezones,
-    get_utc_date,
+    SortOrder, calculate_timezone_hours, generate_table, get_region_timezones, get_utc_date,
 };
 
 #[derive(Parser, Debug, Serialize, Deserialize, Default)]
@@ -73,9 +73,17 @@ fn main() -> Result<()> {
     } else if cli.inverseorder || config.inverseorder {
         sort_order = SortOrder::West;
     }
-    let timezones = match cli.timezones.len() {
-        0 => config.timezones,
-        _ => cli.timezones,
+    let timezones: Vec<(String, Tz)> = match cli.timezones.len() {
+        0 => config
+            .timezones
+            .into_iter()
+            .map(|tz| (tz.clone(), tz.parse().unwrap()))
+            .collect(),
+        _ => cli
+            .timezones
+            .into_iter()
+            .map(|tz| (tz.clone(), tz.parse().unwrap()))
+            .collect(),
     };
     if timezones.is_empty() {
         println!("No timezones provided.");
@@ -85,7 +93,7 @@ fn main() -> Result<()> {
         Some(span) => span,
     };
     let ampm = cli.ampm || config.ampm;
-    let tzhours = calculate_timezone_hours(get_timezones(timezones)?, date, span, ampm, sort_order);
+    let tzhours = calculate_timezone_hours(timezones, date, span, ampm, sort_order);
     generate_table(tzhours, date, cli.noheader || config.noheader, ampm).printstd();
     Ok(())
 }
