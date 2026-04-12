@@ -72,14 +72,12 @@ pub struct TimezoneHours {
     name: String,
     hours: Vec<String>,
     tz: Tz,
+    sort_timestamp: i64,
 }
 
 impl TimezoneHours {
-    fn naive_local_timestamp(&self, date: DateTime<Utc>) -> i64 {
-        date.with_timezone(&self.tz)
-            .naive_local()
-            .and_utc()
-            .timestamp()
+    fn naive_local_timestamp(tz: &Tz, date: DateTime<Utc>) -> i64 {
+        date.with_timezone(tz).naive_local().and_utc().timestamp()
     }
 }
 // ordering here might seem "backwards" but we want eastern TZs to come first i.e. they are
@@ -88,10 +86,7 @@ impl TimezoneHours {
 // to do that, all comparisons are other.cmp(self) not the other way around
 impl Ord for TimezoneHours {
     fn cmp(&self, other: &Self) -> Ordering {
-        let now = Utc::now();
-        other
-            .naive_local_timestamp(now)
-            .cmp(&self.naive_local_timestamp(now))
+        other.sort_timestamp.cmp(&self.sort_timestamp)
     }
 }
 
@@ -103,8 +98,7 @@ impl PartialOrd for TimezoneHours {
 
 impl PartialEq for TimezoneHours {
     fn eq(&self, other: &Self) -> bool {
-        let now = Utc::now();
-        self.naive_local_timestamp(now) == other.naive_local_timestamp(now)
+        self.sort_timestamp == other.sort_timestamp
     }
 }
 
@@ -183,6 +177,7 @@ pub fn calculate_timezone_hours(
             name: tz_str,
             tz,
             hours,
+            sort_timestamp: TimezoneHours::naive_local_timestamp(&tz, date),
         });
     }
     match sort_order {
