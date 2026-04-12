@@ -2,6 +2,7 @@ use anyhow::Result;
 use chrono_tz::Tz;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use tzbuddy::{
     SortOrder, calculate_timezone_hours, generate_table, get_region_timezones, get_utc_date,
 };
@@ -73,7 +74,7 @@ fn main() -> Result<()> {
     } else if cli.inverseorder || config.inverseorder {
         sort_order = SortOrder::West;
     }
-    let timezones: Vec<(String, Tz)> = match cli.timezones.len() {
+    let mut timezones: Vec<(String, Tz)> = match cli.timezones.len() {
         0 => config
             .timezones
             .into_iter()
@@ -88,6 +89,10 @@ fn main() -> Result<()> {
     if timezones.is_empty() {
         println!("No timezones provided.");
     }
+    // Dedup timezones, but preserve the order
+    let mut seen = HashSet::new();
+    timezones.retain(|x| seen.insert(x.0.clone()));
+
     let span = match cli.span {
         None => config.span.unwrap_or(12),
         Some(span) => span,
