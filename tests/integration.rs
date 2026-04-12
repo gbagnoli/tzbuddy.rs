@@ -2,7 +2,7 @@ use serde_json::Value;
 use std::process::Command;
 
 #[test]
-fn test_scrut_smoke() {
+fn test_scrut() {
     // 1. Find scrut manifest path
     let output = Command::new("cargo")
         .args(["metadata", "--format-version", "1"])
@@ -41,9 +41,12 @@ fn test_scrut_smoke() {
         format!("{}:{}", target_dir.to_string_lossy(), path_env)
     };
 
-    // 4. Run scrut test via cargo
     let status = Command::new("cargo")
         .env("PATH", new_path)
+        .env(
+            "XDG_CONFIG_HOME",
+            target_dir.parent().unwrap().join("config"),
+        )
         .args([
             "run",
             "--manifest-path",
@@ -51,9 +54,14 @@ fn test_scrut_smoke() {
             "--",
             "test",
             "tests/smoke.md",
+            "tests/features.md",
         ])
         .status()
         .expect("failed to run scrut via cargo");
+
+    // Clean up
+    let config_dir = target_dir.parent().unwrap().join("config").join("tzbuddy");
+    let _ = std::fs::remove_dir_all(config_dir);
 
     assert!(status.success());
 }

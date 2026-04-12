@@ -2,7 +2,7 @@ use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
 use chrono_tz::{ParseError, TZ_VARIANTS, Tz};
 use prettytable::{Cell, Row, Table, format};
 use std::cmp::Ordering;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
 use std::sync::LazyLock;
 use thiserror::Error;
 
@@ -109,15 +109,6 @@ pub enum SortOrder {
     West,
 }
 
-pub fn get_timezones(cmdline_tzs: Vec<String>) -> Result<HashMap<String, Tz>> {
-    let mut timezones = HashMap::new();
-    for tz_str in cmdline_tzs {
-        let tz: Tz = tz_str.parse()?;
-        timezones.insert(tz_str, tz);
-    }
-    Ok(timezones)
-}
-
 pub fn get_utc_date(cmdline_date: Option<String>) -> Result<DateTime<Utc>> {
     match cmdline_date {
         Some(date) => {
@@ -131,7 +122,7 @@ pub fn get_utc_date(cmdline_date: Option<String>) -> Result<DateTime<Utc>> {
 }
 
 pub fn calculate_timezone_hours(
-    tzs: HashMap<String, Tz>,
+    tzs: Vec<(String, Tz)>,
     date: DateTime<Utc>,
     span: i32,
     am_pm: bool,
