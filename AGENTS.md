@@ -9,5 +9,5 @@
 ### Build Validation
 *   **Pre-Commit/Post-Change Validation:** After any code changes, the build must be validated using the following commands to ensure correctness and adherence to style:
     *   `cargo build`
-    *   `cargo test`
+    *   `cargo test` (Includes unit and integration tests)
     *   `cargo clippy -- -D warnings` (Run in pedantic mode)
