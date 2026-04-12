@@ -15,6 +15,6 @@ echo "* Running cargo test"
 cargo test
 
 echo "* Running shellcheck"
-find . -name '*.sh' -print0 | xargs -0 shellcheck
+find . -name '*.sh' -not -path '*/target/*' -print0 | xargs -0 shellcheck
 
 popd >/dev/null

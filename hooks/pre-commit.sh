@@ -6,11 +6,11 @@ set -o pipefail
 pushd "$(git rev-parse --show-toplevel)" >/dev/null
 tmpdir="$(mktemp -d)"
 
-# shellcheck disable=SC2329
 cleanup() {
-  # shellcheck disable=SC2317
   rm -rf "$tmpdir"
 }
+
+false && cleanup
 
 trap cleanup EXIT
 
