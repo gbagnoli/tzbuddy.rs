@@ -3,7 +3,30 @@ use chrono_tz::{ParseError, TZ_VARIANTS, Tz};
 use prettytable::{Cell, Row, Table, format};
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::sync::LazyLock;
 use thiserror::Error;
+
+static REGIONS: LazyLock<BTreeMap<&'static str, BTreeSet<Option<&'static str>>>> =
+    LazyLock::new(|| {
+        let mut res: BTreeMap<&'static str, BTreeSet<Option<&'static str>>> = BTreeMap::new();
+        for tz in TZ_VARIANTS.iter() {
+            let name = tz.name();
+            let mut parts = name.split('/');
+            let region = parts.next().unwrap_or("Unknown");
+            let location = parts.next();
+            match res.get_mut(&region) {
+                Some(tzs) => {
+                    tzs.insert(location);
+                }
+                None => {
+                    let mut tzs = BTreeSet::new();
+                    tzs.insert(location);
+                    res.insert(region, tzs);
+                }
+            }
+        }
+        res
+    });
 
 #[derive(Error, Debug)]
 pub enum TzbuddyError {
@@ -17,51 +40,26 @@ pub enum TzbuddyError {
 
 pub type Result<T> = std::result::Result<T, TzbuddyError>;
 
-fn by_regions() -> BTreeMap<&'static str, BTreeSet<Option<&'static str>>> {
-    let mut res: BTreeMap<&'static str, BTreeSet<Option<&'static str>>> = BTreeMap::new();
-    for tz in TZ_VARIANTS.iter() {
-        let name = tz.name();
-        let mut parts = name.split('/');
-        let region = parts.next().unwrap_or("Unknown");
-        let location = parts.next();
-        match res.get_mut(&region) {
-            Some(tzs) => {
-                tzs.insert(location);
-            }
-            None => {
-                let mut tzs = BTreeSet::new();
-                tzs.insert(location);
-                res.insert(region, tzs);
-            }
-        }
-    }
-    res
-}
-
 pub fn print_timezones(arg: Option<String>) -> Result<()> {
     match arg {
-        Some(region) => {
-            match by_regions().get(&region.as_str()) {
-                Some(tzs) => {
-                    for tz in tzs.iter() {
-                        match tz {
-                            Some(x) => {
-                                println!("{region}/{x}");
-                            }
-                            None => {
-                                println!("{region}");
-                            }
+        Some(region) => match REGIONS.get(&region.as_str()) {
+            Some(tzs) => {
+                for tz in tzs.iter() {
+                    match tz {
+                        Some(x) => {
+                            println!("{region}/{x}");
+                        }
+                        None => {
+                            println!("{region}");
                         }
                     }
                 }
-                None => {
-                    return Err(TzbuddyError::RegionNotFound(region));
-                }
+                Ok(())
             }
-            Ok(())
-        }
+            None => Err(TzbuddyError::RegionNotFound(region)),
+        },
         None => {
-            for (region, _tzs) in by_regions().iter() {
+            for (region, _tzs) in REGIONS.iter() {
                 println!("{region}");
             }
             Ok(())
