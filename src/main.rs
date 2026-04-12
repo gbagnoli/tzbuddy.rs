@@ -2,7 +2,8 @@ use anyhow::Result;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use tzbuddy::{
-    SortOrder, calculate_timezone_hours, get_timezones, get_utc_date, print_table, print_timezones,
+    SortOrder, calculate_timezone_hours, generate_table, get_region_timezones, get_timezones,
+    get_utc_date,
 };
 
 #[derive(Parser, Debug, Serialize, Deserialize, Default)]
@@ -47,7 +48,9 @@ struct Cli {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     if let Some(arg) = cli.list_timezones {
-        print_timezones(arg)?;
+        for tz in get_region_timezones(arg)? {
+            println!("{tz}");
+        }
         return Ok(());
     }
     if cli.save {
@@ -83,6 +86,6 @@ fn main() -> Result<()> {
     };
     let ampm = cli.ampm || config.ampm;
     let tzhours = calculate_timezone_hours(get_timezones(timezones)?, date, span, ampm, sort_order);
-    print_table(tzhours, date, cli.noheader || config.noheader, ampm);
+    generate_table(tzhours, date, cli.noheader || config.noheader, ampm).printstd();
     Ok(())
 }
