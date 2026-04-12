@@ -72,6 +72,7 @@ to release:
 * install cargo release `cargo install cargo-release`
 * bump the version in Cargo.toml
 * make sure to build first so that Cargo.lock gets updated (`cargo build`)
+* make sure tests passes (`cargo test`)
 * commit the Cargo.toml/Cargo.lock files
 * run `cargo release -v`
 * run `cargo release -v --execute` to push the release
