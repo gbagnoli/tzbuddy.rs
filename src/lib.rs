@@ -40,29 +40,30 @@ pub enum TzbuddyError {
 
 pub type Result<T> = std::result::Result<T, TzbuddyError>;
 
-pub fn print_timezones(arg: Option<String>) -> Result<()> {
+pub fn get_region_timezones(arg: Option<String>) -> Result<Vec<String>> {
+    let mut res = Vec::new();
     match arg {
         Some(region) => match REGIONS.get(&region.as_str()) {
             Some(tzs) => {
                 for tz in tzs.iter() {
                     match tz {
                         Some(x) => {
-                            println!("{region}/{x}");
+                            res.push(format!("{region}/{x}"));
                         }
                         None => {
-                            println!("{region}");
+                            res.push(region.clone());
                         }
                     }
                 }
-                Ok(())
+                Ok(res)
             }
             None => Err(TzbuddyError::RegionNotFound(region)),
         },
         None => {
             for (region, _tzs) in REGIONS.iter() {
-                println!("{region}");
+                res.push(region.to_string());
             }
-            Ok(())
+            Ok(res)
         }
     }
 }
@@ -193,12 +194,12 @@ pub fn calculate_timezone_hours(
     }
 }
 
-pub fn print_table(
+pub fn generate_table(
     tz_hours: Vec<TimezoneHours>,
     date: DateTime<Utc>,
     no_header: bool,
     am_pm: bool,
-) {
+) -> Table {
     let mut table = Table::new();
     let format = format::FormatBuilder::new()
         .column_separator(' ')
@@ -225,7 +226,7 @@ pub fn print_table(
         }
         table.add_row(Row::new(row_elems));
     }
-    table.printstd();
+    table
 }
 
 #[cfg(test)]
