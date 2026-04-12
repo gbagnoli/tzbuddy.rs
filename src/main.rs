@@ -47,7 +47,8 @@ struct Cli {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     if let Some(arg) = cli.list_timezones {
-        return print_timezones(arg);
+        print_timezones(arg)?;
+        return Ok(());
     }
     if cli.save {
         println!(
@@ -62,7 +63,7 @@ fn main() -> Result<()> {
         confy::load("tzbuddy", "tzbuddy")?
     };
 
-    let date = get_utc_date(cli.date);
+    let date = get_utc_date(cli.date)?;
     let mut sort_order = SortOrder::East;
     if cli.noorder || config.noorder {
         sort_order = SortOrder::None;
@@ -73,12 +74,15 @@ fn main() -> Result<()> {
         0 => config.timezones,
         _ => cli.timezones,
     };
+    if timezones.is_empty() {
+        println!("No timezones provided.");
+    }
     let span = match cli.span {
         None => config.span.unwrap_or(12),
         Some(span) => span,
     };
     let ampm = cli.ampm || config.ampm;
-    let tzhours = calculate_timezone_hours(get_timezones(timezones), date, span, ampm, sort_order);
+    let tzhours = calculate_timezone_hours(get_timezones(timezones)?, date, span, ampm, sort_order);
     print_table(tzhours, date, cli.noheader || config.noheader, ampm);
     Ok(())
 }

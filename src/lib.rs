@@ -1,9 +1,21 @@
-use anyhow::{Result, bail};
 use chrono::{DateTime, Datelike, Duration, NaiveDateTime, Timelike, Utc};
-use chrono_tz::{TZ_VARIANTS, Tz};
+use chrono_tz::{ParseError, TZ_VARIANTS, Tz};
 use prettytable::{Cell, Row, Table, format};
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum TzbuddyError {
+    #[error("Cannot find region {0}")]
+    RegionNotFound(String),
+    #[error("Invalid timezone: {0}")]
+    InvalidTimezone(#[from] ParseError),
+    #[error("Invalid date '{0}' for format '{1}': {2}")]
+    InvalidDate(String, String, String),
+}
+
+pub type Result<T> = std::result::Result<T, TzbuddyError>;
 
 fn by_regions() -> BTreeMap<&'static str, BTreeSet<Option<&'static str>>> {
     let mut res: BTreeMap<&'static str, BTreeSet<Option<&'static str>>> = BTreeMap::new();
@@ -26,13 +38,6 @@ fn by_regions() -> BTreeMap<&'static str, BTreeSet<Option<&'static str>>> {
     res
 }
 
-fn print_regions() -> Result<()> {
-    for (region, _tzs) in by_regions().iter() {
-        println!("{region}");
-    }
-    Ok(())
-}
-
 pub fn print_timezones(arg: Option<String>) -> Result<()> {
     match arg {
         Some(region) => {
@@ -50,12 +55,17 @@ pub fn print_timezones(arg: Option<String>) -> Result<()> {
                     }
                 }
                 None => {
-                    bail!("Cannot find region {}", region);
+                    return Err(TzbuddyError::RegionNotFound(region));
                 }
             }
             Ok(())
         }
-        None => print_regions(),
+        None => {
+            for (region, _tzs) in by_regions().iter() {
+                println!("{region}");
+            }
+            Ok(())
+        }
     }
 }
 
@@ -106,37 +116,24 @@ pub enum SortOrder {
     West,
 }
 
-pub fn get_timezones(cmdline_tzs: Vec<String>) -> HashMap<String, Tz> {
+pub fn get_timezones(cmdline_tzs: Vec<String>) -> Result<HashMap<String, Tz>> {
     let mut timezones = HashMap::new();
-    if !cmdline_tzs.is_empty() {
-        for tz_str in cmdline_tzs {
-            let tz_opt = tz_str.parse();
-            match tz_opt {
-                Ok(tz) => {
-                    timezones.insert(tz_str, tz);
-                }
-                Err(e) => println!("{e}: discarding"),
-            }
-        }
-    } else {
-        println!("No timezones provided.");
+    for tz_str in cmdline_tzs {
+        let tz: Tz = tz_str.parse()?;
+        timezones.insert(tz_str, tz);
     }
-    timezones
+    Ok(timezones)
 }
 
-pub fn get_utc_date(cmdline_date: Option<String>) -> DateTime<Utc> {
+pub fn get_utc_date(cmdline_date: Option<String>) -> Result<DateTime<Utc>> {
     match cmdline_date {
         Some(date) => {
             let format = "%Y-%m-%d %H:%M";
-            match NaiveDateTime::parse_from_str(&date, format) {
-                Ok(naive) => DateTime::from_naive_utc_and_offset(naive, Utc),
-                Err(e) => {
-                    println!("Invalid date '{date}' for format '{format}' ({e}). Using now()");
-                    Utc::now()
-                }
-            }
+            let naive = NaiveDateTime::parse_from_str(&date, format)
+                .map_err(|e| TzbuddyError::InvalidDate(date, format.to_string(), e.to_string()))?;
+            Ok(DateTime::from_naive_utc_and_offset(naive, Utc))
         }
-        None => Utc::now(),
+        None => Ok(Utc::now()),
     }
 }
 
