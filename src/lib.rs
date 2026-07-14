@@ -60,7 +60,7 @@ pub fn get_region_timezones(arg: Option<String>) -> Result<Vec<String>> {
             None => Err(TzbuddyError::RegionNotFound(region)),
         },
         None => {
-            for (region, _tzs) in REGIONS.iter() {
+            for region in REGIONS.keys() {
                 res.push(region.to_string());
             }
             Ok(res)
